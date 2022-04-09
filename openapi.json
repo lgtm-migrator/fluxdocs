@@ -1,7 +1,7 @@
 {
   "openapi": "3.0.0",
   "info": {
-    "version": "0.2.0",
+    "version": "0.3.0",
     "title": "Flux",
     "contact": {
       "email": "tadeas@zel.network",
@@ -14,7 +14,7 @@
     "x-logo": {
       "url": "https://raw.githubusercontent.com/runonflux/fluxdocs/master/flux.jpg"
     },
-    "description": "This is an API documentation of calls available to be made to any Flux. <br> GET Calls are available as both query and in order as path. <br> Flux is completely open source and we encourage everyone to feel free and contribute :) <br> Further questions or support join and ask in our [discord](https://discord.io/runonflux)\n\n# Introduction\nFlux possesses a 5 tier hiearchy level API.\n* **Public** API level - Available without any permission, does not require signing.\n* **User** API level - User level permission, requires signing.\n* **FluxTeam** API level - FluxTeam level permission (an appointed Flux Team member has access to those API calls), requires signing.\n* **Admin** API level - Admin level permission, requires signing. Flux owner.\n* **AdminAndFluxTeam** API level permission (Admin and Flux Team has access to these calls), requires signing.\n* **AppOwner** API level - AppOwner level permission, requires signing. App Owner.\n* **AppOwnerAbove** API level - AppOwnerAbove level permission (App Owner, FluxTeam, and Admin has access to these calls), requires signing.\n\nMost calls are available via GET request with some that may require large amount of data via POST request.\nWebsocket is currently used only for simplifying login operations and for internal Flux communication."
+    "description": "This is an API documentation of calls available to be made to any Flux. <br> GET Calls are available as both query and in order as path. <br> Flux is completely open source and we encourage everyone to feel free and contribute :) <br> Further questions or support join and ask in our [discord](https://discord.io/runonflux)\n\n# Introduction\nFlux possesses a 5 tier hiearchy level API.\n* **Public** API level - Available without any permission, does not require signing.\n* **User** API level - User level permission, requires signing.\n* **FluxTeam** API level - FluxTeam level permission (an appointed Flux Team member has access to those API calls), requires signing.\n* **Admin** API level - Admin level permission, requires signing. Flux owner.\n* **AdminAndFluxTeam** API level permission (Admin and Flux Team has access to these calls), requires signing.\n* **AppOwner** API level - AppOwner level permission, requires signing. App Owner.\n* **AppOwnerAbove** API level - AppOwnerAbove level permission (App Owner, FluxTeam, and Admin has access to these calls), requires signing.\n\nMost calls are available via GET request with some that may require large amount of data via POST request.\nWebsocket is currently used only for simplifying login operations and for internal Flux communication.\n# Getting Started with the API\n* **1. Install Zelcore Wallet:** The Zelcore wallet is required for signing messages. Please install this if not already installed.\n* **2. Create Zelcore Account:** A Zelcore wallet account is required for signing messages. Please register an account if you don't already have one.\n* **3. Obtain API Authentication Credentials:** Follow the Authentication section of this API documentation in order to set up your credentials for using the rest of the API. You will need to use your Zelcore wallet for parts of this process.\n* **4. Set Up Authentication Credentials in Header:** Set up your zelidauth credentials in your header. If you are using variables, the signature value may need to be URLencoded."
   },
   "externalDocs": {
     "description": "Flux",
@@ -136,6 +136,22 @@
         "summary": "Login into Flux",
         "description": "Login into Flux by submitting correct ZelID, login phrase and signature. Note that to get the signature of the signed message you would need to do the signing on Zelcore or your BTC wallet. If success status response is returned, we can use the supplied data(zelid, loginPhrase, signature) as zelauth header as part of api calls that require a user to be logged in. Additionally it is possible to listen for a response on websocket. ws://{Flux_IP}:16127/ws/id/{loginPhrase}. **Public**",
         "operationId": "verifyLogin",
+        "requestBody": {
+          "content": {
+            "text/plain": {
+              "schema": {
+                "$ref": "#/components/schemas/ZelIDLogin"
+              },
+              "example": {
+                "loginPhrase": "1575012988077darschvve5ag82g8e8sgeij4sn61842ya7ovxi9r3kba",
+                "zelid": "1CbErtneaX2QVyUfwU7JGB7VzvPgrgc3uC",
+                "signature": "IAMZBB0p8aQ6A0Zt8uUKFLdWvPJlBypuczhaM6/R+s5bI72NQs/TPF1KYywvJlumMZyvLmk7JelDwaQbfTjqtSs="
+              }
+            }
+          },
+          "description": "ZelID login object",
+          "required": true
+        },
         "responses": {
           "200": {
             "description": "OK",
@@ -197,17 +213,6 @@
               }
             }
           }
-        },
-        "requestBody": {
-          "content": {
-            "text/plain": {
-              "schema": {
-                "$ref": "#/components/schemas/ZelIDLogin"
-              }
-            }
-          },
-          "description": "ZelID login object",
-          "required": true
         }
       }
     },
@@ -631,59 +636,6 @@
         }
       }
     },
-    "/id/adjustcruxid": {
-      "get": {
-        "tags": [
-          "ID"
-        ],
-        "summary": "Adjust CruxID",
-        "description": "This will add/update your CruxID. **Admin**",
-        "operationId": "adjustCruxID",
-        "security": [
-          {
-            "ZelID": []
-          }
-        ],
-        "parameters": [
-          {
-            "in": "query",
-            "name": "cruxid",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "CruxID",
-            "example": "dk808@zel.crux"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "status": {
-                      "$ref": "#/components/schemas/status"
-                    },
-                    "data": {
-                      "$ref": "#/components/schemas/statusmessage"
-                    }
-                  }
-                },
-                "example": {
-                  "status": "success",
-                  "data": {
-                    "message": "CruxID adjusted"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/id/logoutspecificsession": {
       "post": {
         "tags": [
@@ -698,6 +650,28 @@
         ],
         "description": "Logs out a specific session. Requires the knowledge of a session loginPhrase and so users level is sufficient and user cannot logout another user as he does not know the loginPhrase. Admin can logout any specific session. **User**",
         "operationId": "logoutSpecificSession",
+        "requestBody": {
+          "content": {
+            "text/plain": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "loginPhrase": {
+                    "description": "Login Phrase of session we want to log out.",
+                    "type": "string",
+                    "minLength": 40,
+                    "example": "1574991374806spbcvsuwerl52tppx9dw5khuz8rew13mkq86gg8r2c"
+                  }
+                }
+              },
+              "example": {
+                "loginPhrase": "1575012988077darschvve5ag82g8e8sgeij4sn61842ya7ovxi9r3kba"
+              }
+            }
+          },
+          "description": "Object containing loginPhrase",
+          "required": true
+        },
         "responses": {
           "200": {
             "description": "OK",
@@ -723,25 +697,72 @@
               }
             }
           }
-        },
+        }
+      }
+    },
+    "/id/checkprivilege": {
+      "post": {
+        "tags": [
+          "ZelID"
+        ],
+        "summary": "Checks the privilege level of user",
+        "security": [
+          {
+            "ZelID": []
+          }
+        ],
+        "description": "Checks the privilege level of the user. The 5 levels are public, user, admin, flux team and app owner. **User**",
+        "operationId": "checkLoggedUser",
         "requestBody": {
           "content": {
             "text/plain": {
               "schema": {
                 "type": "object",
                 "properties": {
-                  "loginPhrase": {
-                    "description": "Login Phrase of session we want to log out.",
+                  "zelid": {
                     "type": "string",
-                    "minLength": 40,
-                    "example": "1574991374806spbcvsuwerl52tppx9dw5khuz8rew13mkq86gg8r2c"
+                    "description": "ZelID"
+                  },
+                  "signature": {
+                    "type": "string",
+                    "description": "Signature of signed loginPhrase with ZelID"
+                  }
+                }
+              },
+              "example": {
+                "zelid": "1CbErtneaX2QVyUfwU7JGB7VzvPgrgc3uC",
+                "signature": "IAMZBB0p8aQ6A0Zt8uUKFLdWvPJlBypuczhaM6/R+s5bI72NQs/TPF1KYywvJlumMZyvLmk7JelDwaQbfTjqtSs="
+              }
+            }
+          },
+          "description": "Object containing privilege level",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "$ref": "#/components/schemas/status"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/statusmessage"
+                    }
+                  }
+                },
+                "example": {
+                  "status": "success",
+                  "data": {
+                    "message": "admin"
                   }
                 }
               }
             }
-          },
-          "description": "Object containing loginPhrase",
-          "required": true
+          }
         }
       }
     },
@@ -2629,13 +2650,623 @@
         }
       }
     },
+    "/flux/adjustcruxid": {
+      "get": {
+        "tags": [
+          "Flux"
+        ],
+        "summary": "Adjust CruxID",
+        "description": "This will add/update your CruxID. **Admin**",
+        "operationId": "adjustCruxID",
+        "security": [
+          {
+            "ZelID": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "cruxid",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "CruxID",
+            "example": "dk808@zel.crux"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "$ref": "#/components/schemas/status"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/statusmessage"
+                    }
+                  }
+                },
+                "example": {
+                  "status": "success",
+                  "data": {
+                    "message": "CruxID adjusted"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/flux/nodetier": {
+      "get": {
+        "tags": [
+          "Flux"
+        ],
+        "summary": "Node Tier",
+        "description": "This call will display the tier of the node. **Public**",
+        "operationId": "getNodeTier",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "$ref": "#/components/schemas/status"
+                    },
+                    "data": {
+                      "type": "string",
+                      "description": "Node Tier"
+                    }
+                  }
+                },
+                "example": {
+                  "status": "success",
+                  "data": "cumulus"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/flux/id": {
+      "get": {
+        "tags": [
+          "Flux"
+        ],
+        "summary": "ZelID",
+        "description": "This call will display the user's ZelID. **Public**",
+        "operationId": "getFluxZelID",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "$ref": "#/components/schemas/status"
+                    },
+                    "data": {
+                      "type": "string",
+                      "description": "ZelID"
+                    }
+                  }
+                },
+                "example": {
+                  "status": "success",
+                  "data": "1CcoEkKQZcwUXPSps4bZJDjUM3mqe9bNXf"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/flux/kadena": {
+      "get": {
+        "tags": [
+          "Flux"
+        ],
+        "summary": "Kadena Info",
+        "description": "This call will display the user's Kadena address and chain ID. **Public**",
+        "operationId": "getFluxKadena",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "$ref": "#/components/schemas/status"
+                    },
+                    "data": {
+                      "type": "string",
+                      "description": "Kadena address and chain ID"
+                    }
+                  }
+                },
+                "example": {
+                  "status": "success",
+                  "data": "kadena:k:7a1529b3a07fate32d75684ab20bdde61545d60f1c6bcbf2489fef857a316652?chainid=0"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/flux/adjustkadena": {
+      "get": {
+        "tags": [
+          "Flux"
+        ],
+        "summary": "Adjust Kadena Account",
+        "description": "Essentially rebuilds flux - use with caution! **Admin**",
+        "operationId": "adjustKadenaAccount",
+        "security": [
+          {
+            "ZelID": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "account",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Kadena Account",
+            "example": "k:7a1529b3a07fate32d75684ab20bdde61545d60f1c6bcbf2489fef857a316652"
+          },
+          {
+            "in": "query",
+            "name": "chainid",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Kadena ChainID",
+            "example": 0
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "$ref": "#/components/schemas/status"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/statusmessage"
+                    }
+                  }
+                },
+                "example": {
+                  "status": "success",
+                  "data": {
+                    "message": "Kadena account adjusted"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/flux/startbenchmark": {
+      "get": {
+        "tags": [
+          "Flux"
+        ],
+        "summary": "Start Benchmark",
+        "description": "This call will start the benchmark which tests the hardware specifications and performance. **AdminAndFluxTeam**",
+        "operationId": "startBenchmark",
+        "security": [
+          {
+            "ZelID": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "$ref": "#/components/schemas/status"
+                    },
+                    "data": {
+                      "type": "string",
+                      "description": "Start performance benchmark"
+                    }
+                  }
+                },
+                "example": {
+                  "status": "success",
+                  "data": {
+                    "message": "Benchamrk successfully started"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/flux/restartbenchmark": {
+      "get": {
+        "tags": [
+          "Flux"
+        ],
+        "summary": "Restart Benchmark",
+        "description": "This call will restart the benchmark which tests the hardware specifications and performance. **AdminAndFluxTeam**",
+        "operationId": "startBenchmark",
+        "security": [
+          {
+            "ZelID": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "$ref": "#/components/schemas/status"
+                    },
+                    "data": {
+                      "type": "string",
+                      "description": "Restart performance benchmark"
+                    }
+                  }
+                },
+                "example": {
+                  "status": "success",
+                  "data": {
+                    "message": "Benchamrk successfully restarted"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/flux/softupdateflux": {
+      "get": {
+        "tags": [
+          "Flux"
+        ],
+        "summary": "Soft Update Flux",
+        "description": "This call will perform a soft update of Flux. **AdminAndFluxTeam**",
+        "operationId": "softUpdateFlux",
+        "security": [
+          {
+            "ZelID": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "$ref": "#/components/schemas/status"
+                    },
+                    "data": {
+                      "type": "string",
+                      "description": "Perform a soft update of Flux"
+                    }
+                  }
+                },
+                "example": {
+                  "status": "success",
+                  "data": {
+                    "message": "Flux successfully updated using soft method"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/flux/softupdatefluxinstall": {
+      "get": {
+        "tags": [
+          "Flux"
+        ],
+        "summary": "Install Flux",
+        "description": "This call will install Flux. **AdminAndFluxTeam**",
+        "operationId": "softUpdateFluxInstall",
+        "security": [
+          {
+            "ZelID": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "$ref": "#/components/schemas/status"
+                    },
+                    "data": {
+                      "type": "string",
+                      "description": "Install Flux"
+                    }
+                  }
+                },
+                "example": {
+                  "status": "success",
+                  "data": {
+                    "message": "Flux successfully updated softly with installation"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/flux/warnlog": {
+      "get": {
+        "tags": [
+          "Flux"
+        ],
+        "summary": "Warning Log",
+        "description": "This call returns the Flux warning log. **AdminAndFluxTeam**",
+        "operationId": "fluxWarnLog",
+        "security": [
+          {
+            "ZelID": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "description": "Warning log"
+                },
+                "example": "2022-01-23T15:23:33.638Z          Daemon not yet synced. Flux discovery is awaiting. 2022-01-23T15:25:33.655Z          Node not confirmed. Flux discovery is awaiting. 2022-01-23T15:27:33.869Z          Unexpected token B in JSON at position 0 2022-01-23T15:29:34.535Z          Flux IP not detected. Flux discovery is awaiting."
+              }
+            }
+          }
+        }
+      }
+    },
+    "/flux/debuglog": {
+      "get": {
+        "tags": [
+          "Flux"
+        ],
+        "summary": "Debug Log",
+        "description": "This call returns the Flux debug log. **AdminAndFluxTeam**",
+        "operationId": "fluxDebugLog",
+        "security": [
+          {
+            "ZelID": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "description": "Debug log"
+                },
+                "example": "2022-01-23T15:23:33.049Z          Flux running on port 16127! 2022-01-23T15:23:33.051Z          Initiating MongoDB connection 2022-01-23T15:23:33.075Z          Flux Home running on port 16126! 2022-01-23T15:23:33.106Z          DB connected 2022-01-23T15:23:33.106Z          Preparing local database... 2022-01-23T15:23:33.471Z          Local database prepared 2022-01-23T15:23:33.472Z          Preparing temporary database... 2022-01-23T15:23:33.505Z          Temporary database prepared 2022-01-23T15:23:33.505Z          Preparing Flux Apps locations 2022-01-23T15:23:33.554Z          Flux Apps locations prepared 2022-01-23T15:23:33.571Z          Firewalls checked 2022-01-23T15:23:33.572Z          Connections polling prepared 2022-01-23T15:23:33.580Z          Flux Daemon Info Service Started 2022-01-23T15:23:33.619Z          Flux checks operational 2022-01-23T15:23:33.638Z          Daemon not yet synced. Flux discovery is awaiting. 2022-01-23T15:23:33.639Z          Flux Discovery started"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/flux/infolog": {
+      "get": {
+        "tags": [
+          "Flux"
+        ],
+        "summary": "Info Log",
+        "description": "This call returns the Flux info log. **AdminAndFluxTeam**",
+        "operationId": "fluxInfoLog",
+        "security": [
+          {
+            "ZelID": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "description": "Info log"
+                },
+                "example": "2022-01-23T15:23:33.047Z          Flux running on port 16127! 2022-01-23T15:23:33.050Z          Initiating MongoDB connection 2022-01-23T15:23:33.071Z          Flux Home running on port 16126! 2022-01-23T15:23:33.105Z          DB connected 2022-01-23T15:23:33.106Z          Preparing local database... 2022-01-23T15:23:33.431Z          Local database prepared 2022-01-23T15:23:33.472Z          Preparing temporary database... 2022-01-23T15:23:33.505Z          Temporary database prepared 2022-01-23T15:23:33.505Z          Preparing Flux Apps locations 2022-01-23T15:23:33.554Z          Flux Apps locations prepared 2022-01-23T15:23:33.571Z          Firewalls checked"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/flux/tailwarnlog": {
+      "get": {
+        "tags": [
+          "Flux"
+        ],
+        "summary": "Tail Warn Log",
+        "description": "This call returns the Flux tail warn log. **AdminAndFluxTeam**",
+        "operationId": "tailFluxWarnLog",
+        "security": [
+          {
+            "ZelID": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "description": "Tail warn log"
+                },
+                "example": {
+                  "status": "success",
+                  "data": {
+                    "message": "2022-01-23T16:44:33.266Z          Message received from outgoing peer 167.86.116.93 but is not an originating node of 043adf786dbfc86b8ca741deb589c75b5aa05e99416af5489a6407683c3ef88d30eab6b5cfab869d8def357c46db6bf553b4cb17104219065a17519a8a2596da92.\\n 2022-01-23T16:44:34.856Z          Message received from outgoing peer 167.86.121.80 but is not an originating node of 043d50eb6288db8991a893d00014a0c9bf3ca4baac923eee2e65fae746b5ef41ccd26508ca5e8ef2f0092fc22cd7306b4c1da900eca5f27ee995786f58f6254c79.\\n 2022-01-23T16:44:36.225Z          Message received from incoming peer ::ffff:194.163.176.204 but is not an originating node of 042dd35e0ccf4df99b63768a974b16f6b00fe8cf087320db13942689230ad3a8817f5d98dc0deb8b899a6794cc7ec7771295b54782c8ad52c07c8cedebe83772f5."
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/flux/taildebuglog": {
+      "get": {
+        "tags": [
+          "Flux"
+        ],
+        "summary": "Tail Debug Log",
+        "description": "This call returns the Flux tail debug log. **AdminAndFluxTeam**",
+        "operationId": "tailFluxDebugLog",
+        "security": [
+          {
+            "ZelID": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "description": "Tail debug log"
+                },
+                "example": {
+                  "status": "success",
+                  "data": {
+                    "message": "2022-01-23T17:02:21.941Z          Transaction c70cd93576c5717621f75ca9509c113266a0e19559b61784443845c6cb4865d0 1 not found in database. Falling back to blockchain data\\n 2022-01-23T17:02:22.327Z          Transaction 8a6118a60b845250d747f66ecb2eb702eb7ed29c7567745788f9e81d4c3a0f3a 1 not found in database. Falling back to blockchain data\\n 2022-01-23T17:02:22.470Z          Transaction 04b86bbc7a3cd64752032f29d6ef6f6f859bfe86ac5026ecc8d5e8dfa7c29160 0 not found in database. Falling back to blockchain data\\n"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/flux/tailinfolog": {
+      "get": {
+        "tags": [
+          "Flux"
+        ],
+        "summary": "Tail Info Log",
+        "description": "This call returns the Flux tail info log. **AdminAndFluxTeam**",
+        "operationId": "tailFluxInfoLog",
+        "security": [
+          {
+            "ZelID": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "description": "Tail info log"
+                },
+                "example": {
+                  "status": "success",
+                  "data": {
+                    "message": "2022-01-23T17:02:23.458Z          Transaction 03dcc45f7c265d73db3e53c98a94c1a52841ac10c7774c6a1942fb602bd7712c 1 not found in database. Falling back to blockchain data\\n 2022-01-23T17:02:23.600Z          Transaction e141049a8de186b718313343bb08f0341c6273eccd424a4b4d5c5bee599ad713 0 not found in database. Falling back to blockchain data\\n 2022-01-23T17:02:23.793Z          Transaction 5e59328a1f97ee3335b23ac550236cdcc022bea86cc78e3dddf0674e2d0fd129 0 not found in database. Falling back to blockchain data\\n"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/flux/backendfolder": {
+      "get": {
+        "tags": [
+          "Flux"
+        ],
+        "summary": "Local Folder Location",
+        "description": "This call returns the local folder location for Flux. **AdminAndFluxTeam**",
+        "operationId": "fluxBackendFolder",
+        "security": [
+          {
+            "ZelID": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "description": "Backend folder location"
+                },
+                "example": {
+                  "status": "success",
+                  "data": "/home/username/zelflux/ZelBack/"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/daemon/help": {
       "get": {
         "tags": [
           "Daemon"
         ],
         "summary": "RPC list",
-        "description": "Gets list of RPC for the Zelcash daemon or if command query is used it will respond with the help info for that specified call. **Public**",
+        "description": "Gets list of RPC for the Flux daemon or if command query is used it will respond with the help info for that specified call. **Public**",
         "operationId": "help",
         "parameters": [
           {
@@ -2680,8 +3311,8 @@
         "tags": [
           "Daemon"
         ],
-        "summary": "Zelcash daemon info",
-        "description": "Returns an object containing various state info for the Zelcash daemon. **Public**",
+        "summary": "Flux daemon info",
+        "description": "Returns an object containing various state info for the Flux daemon. **Public**",
         "operationId": "getInfo",
         "responses": {
           "200": {
@@ -2929,8 +3560,8 @@
         "tags": [
           "Daemon"
         ],
-        "summary": "Deterministic ZelNode list",
-        "description": "View deterministic list of ZelNodes by rank. **Public**",
+        "summary": "Deterministic FluxNode list",
+        "description": "View deterministic list of FluxNodes by rank. **Public**",
         "operationId": "viewDeterministicZelNodeList",
         "parameters": [
           {
@@ -2973,7 +3604,7 @@
                           },
                           "ip": {
                             "type": "string",
-                            "description": "Ip address of ZelNode server"
+                            "description": "Ip address of FluxNode server"
                           },
                           "network": {
                             "type": "string",
@@ -2981,23 +3612,23 @@
                           },
                           "added_height": {
                             "type": "integer",
-                            "description": "Block height ZelNode was added to list"
+                            "description": "Block height FluxNode was added to list"
                           },
                           "confirmed_height": {
                             "type": "integer",
-                            "description": "Block height ZelNode was confirmed by the network"
+                            "description": "Block height FluxNode was confirmed by the network"
                           },
                           "last_confirmed_height": {
                             "type": "integer",
-                            "description": "Latest block height network confirmed the ZelNode"
+                            "description": "Latest block height network confirmed the FluxNode"
                           },
                           "last_paid_height": {
                             "type": "integer",
-                            "description": "Block the ZelNode was last paid"
+                            "description": "Block the FluxNode was last paid"
                           },
                           "tier": {
                             "type": "string",
-                            "description": "Tier of ZelNode"
+                            "description": "Tier of FluxNode"
                           },
                           "payment_address": {
                             "type": "string",
@@ -3005,11 +3636,11 @@
                           },
                           "pubkey": {
                             "type": "string",
-                            "description": "Zelnode public key used for message broadcasting"
+                            "description": "Fluxnode public key used for message broadcasting"
                           },
                           "activesince": {
                             "type": "integer",
-                            "description": "Active time of ZelNode in epoch"
+                            "description": "Active time of FluxNode in epoch"
                           },
                           "lastpaid": {
                             "type": "integer",
@@ -3017,7 +3648,7 @@
                           },
                           "rank": {
                             "type": "integer",
-                            "description": "Rank of ZelNode"
+                            "description": "Rank of FluxNode"
                           }
                         }
                       }
@@ -3126,7 +3757,7 @@
           "Daemon"
         ],
         "summary": "Flux node count",
-        "description": "Returns a count of ZelNodes and enabled ZelNodes categorized by tiers. **Public**",
+        "description": "Returns a count of FluxNodes and enabled FluxNodes categorized by tiers. **Public**",
         "operationId": "getZelNodeCount",
         "responses": {
           "200": {
@@ -3202,7 +3833,7 @@
         "tags": [
           "Daemon"
         ],
-        "summary": "ZelNode DOS list",
+        "summary": "FluxNode DOS list",
         "description": "Get a list of all zelnodes in the DOS list. **Public**",
         "operationId": "getDOSList",
         "responses": {
@@ -3264,8 +3895,8 @@
         "tags": [
           "Daemon"
         ],
-        "summary": "ZelNode start list",
-        "description": "Get a list of all zelnodes in the start list. **Public**",
+        "summary": "FluxNode start list",
+        "description": "Get a list of all Fluxnodes in the start list. **Public**",
         "operationId": "getStartList",
         "responses": {
           "200": {
@@ -3388,14 +4019,14 @@
         }
       }
     },
-    "/daemon/zelnodecurrentwinner": {
+    "/daemon/fluxcurrentwinner": {
       "get": {
         "tags": [
           "Daemon"
         ],
         "summary": "Current list of winners",
         "description": "Gets a list of current ZelNode winners. **Public**",
-        "operationId": "zelNodeCurrentWinner",
+        "operationId": "FluxNodeCurrentWinner",
         "responses": {
           "200": {
             "description": "OK",
@@ -3415,31 +4046,31 @@
                           "properties": {
                             "collateral": {
                               "type": "string",
-                              "description": "Collateral txid and output index of ZelNode"
+                              "description": "Collateral txid and output index of FluxNode"
                             },
                             "ip": {
                               "type": "string",
-                              "description": "Ip address of ZelNode"
+                              "description": "Ip address of FluxNode"
                             },
                             "added_height": {
                               "type": "integer",
-                              "description": "Block height ZelNode was added"
+                              "description": "Block height FluxNode was added"
                             },
                             "confirmed_height": {
                               "type": "integer",
-                              "description": "Block height ZelNode was confirmed"
+                              "description": "Block height FluxNode was confirmed"
                             },
                             "last_confirmed_height": {
                               "type": "integer",
-                              "description": "Block height ZelNode was last confirmed"
+                              "description": "Block height FluxNode was last confirmed"
                             },
                             "last_paid_height": {
                               "type": "integer",
-                              "description": "Block height ZelNode was last paid"
+                              "description": "Block height FluxNode was last paid"
                             },
                             "tier": {
                               "type": "string",
-                              "description": "ZelNode tier"
+                              "description": "FluxNode tier"
                             },
                             "payment_address": {
                               "type": "string",
@@ -3452,31 +4083,31 @@
                           "properties": {
                             "collateral": {
                               "type": "string",
-                              "description": "Collateral txid and output index of ZelNode"
+                              "description": "Collateral txid and output index of FluxNode"
                             },
                             "ip": {
                               "type": "string",
-                              "description": "Ip address of ZelNode"
+                              "description": "Ip address of FluxNode"
                             },
                             "added_height": {
                               "type": "integer",
-                              "description": "Block height ZelNode was added"
+                              "description": "Block height FluxNode was added"
                             },
                             "confirmed_height": {
                               "type": "integer",
-                              "description": "Block height ZelNode was confirmed"
+                              "description": "Block height FluxNode was confirmed"
                             },
                             "last_confirmed_height": {
                               "type": "integer",
-                              "description": "Block height ZelNode was last confirmed"
+                              "description": "Block height FluxNode was last confirmed"
                             },
                             "last_paid_height": {
                               "type": "integer",
-                              "description": "Block height ZelNode was last paid"
+                              "description": "Block height FluxNode was last paid"
                             },
                             "tier": {
                               "type": "string",
-                              "description": "ZelNode tier"
+                              "description": "FluxNode tier"
                             },
                             "payment_address": {
                               "type": "string",
@@ -3489,31 +4120,31 @@
                           "properties": {
                             "collateral": {
                               "type": "string",
-                              "description": "Collateral txid and output index of ZelNode"
+                              "description": "Collateral txid and output index of FluxNode"
                             },
                             "ip": {
                               "type": "string",
-                              "description": "Ip address of ZelNode"
+                              "description": "Ip address of FluxNode"
                             },
                             "added_height": {
                               "type": "integer",
-                              "description": "Block height ZelNode was added"
+                              "description": "Block height FluxNode was added"
                             },
                             "confirmed_height": {
                               "type": "integer",
-                              "description": "Block height ZelNode was confirmed"
+                              "description": "Block height FluxNode was confirmed"
                             },
                             "last_confirmed_height": {
                               "type": "integer",
-                              "description": "Block height ZelNode was last confirmed"
+                              "description": "Block height FluxNode was last confirmed"
                             },
                             "last_paid_height": {
                               "type": "integer",
-                              "description": "Block height ZelNode was last paid"
+                              "description": "Block height FluxNode was last paid"
                             },
                             "tier": {
                               "type": "string",
-                              "description": "ZelNode tier"
+                              "description": "FluxNode tier"
                             },
                             "payment_address": {
                               "type": "string",
@@ -3728,11 +4359,11 @@
                               },
                               "chainValue": {
                                 "type": "number",
-                                "description": "Pool value of ZEL"
+                                "description": "Pool value of FLUX"
                               },
                               "chainValueZat": {
                                 "type": "integer",
-                                "description": "Pool value of ZEL"
+                                "description": "Pool value of FLUX"
                               },
                               "valueDelta": {
                                 "type": "integer",
@@ -4665,7 +5296,7 @@
                             },
                             "fee": {
                               "type": "integer",
-                              "description": "Transaction fee in ZEL"
+                              "description": "Transaction fee in FLUX"
                             },
                             "time": {
                               "type": "integer",
@@ -4828,7 +5459,7 @@
                         },
                         "value": {
                           "type": "number",
-                          "description": "The transaction value in ZEL"
+                          "description": "The transaction value in FLUX"
                         },
                         "scriptPubKey": {
                           "type": "object",
@@ -5109,7 +5740,7 @@
                       "properties": {
                         "miner": {
                           "type": "integer",
-                          "description": "The mining reward amount in ZEL"
+                          "description": "The mining reward amount in FLUX"
                         }
                       }
                     }
@@ -5307,7 +5938,7 @@
                         },
                         "basic_zelnode_address": {
                           "type": "string",
-                          "description": "ZEL address"
+                          "description": "FLUX address"
                         },
                         "basic_zelnode_payout": {
                           "type": "integer",
@@ -5315,7 +5946,7 @@
                         },
                         "super_zelnode_address": {
                           "type": "string",
-                          "description": "ZEL address"
+                          "description": "FLUX address"
                         },
                         "super_zelnode_payout": {
                           "type": "integer",
@@ -5323,7 +5954,7 @@
                         },
                         "bamf_zelnode_address": {
                           "type": "string",
-                          "description": "ZEL address"
+                          "description": "FLUX address"
                         },
                         "bamf_zelnode_payout": {
                           "type": "integer",
@@ -6765,11 +7396,11 @@
                         },
                         "valueBalance": {
                           "type": "number",
-                          "description": "The balance value of ZEL"
+                          "description": "The balance value of FLUX"
                         },
                         "valueBalanceZat": {
                           "type": "integer",
-                          "description": "The balance value of ZEL"
+                          "description": "The balance value of FLUX"
                         },
                         "vShieldedSpend": {
                           "$ref": "#/components/schemas/shieldedspend"
@@ -7141,11 +7772,11 @@
                 "properties": {
                   "n": {
                     "type": "integer",
-                    "description": "The number of required signatures out of the n keys or addresses. Followed by Zel addresses in array of strings."
+                    "description": "The number of required signatures out of the n keys or addresses. Followed by Flux addresses in array of strings."
                   },
                   "keys": {
                     "type": "array",
-                    "description": "Array of keys which are Zelcash addresses or hex-encoded public keys",
+                    "description": "Array of keys which are Flux addresses or hex-encoded public keys",
                     "items": {
                       "type": "string",
                       "description": "ZelCash address or hex-encoded public key"
@@ -7213,7 +7844,7 @@
             "in": "query",
             "name": "keys",
             "required": true,
-            "description": "A json array of keys which are Zelcash addresses or hex-encoded public keys.\n\nExample:\n- `[\"t1XcXfRFSnSeYmf2mbsMHzHbV8Qo5Zhk817\",\"t1RAxsCaeeqB2XbZqvYU87uTMo9K2RtcA9z\"]`\n",
+            "description": "A json array of keys which are Flux addresses or hex-encoded public keys.\n\nExample:\n- `[\"t1XcXfRFSnSeYmf2mbsMHzHbV8Qo5Zhk817\",\"t1RAxsCaeeqB2XbZqvYU87uTMo9K2RtcA9z\"]`\n",
             "schema": {
               "type": "array",
               "items": {
@@ -7351,7 +7982,7 @@
           "Daemon"
         ],
         "summary": "Info of the Zelcash address",
-        "description": "Return information about the given Zelcash address. **Public**",
+        "description": "Return information about the given Flux address. **Public**",
         "operationId": "validateAddress",
         "parameters": [
           {
@@ -7361,7 +7992,7 @@
             "schema": {
               "type": "string"
             },
-            "description": "Zelcash address to validate",
+            "description": "Flux address to validate",
             "example": "t1N6mLX2A64QsyuLbYkfPZSrkLF86hxuuFe"
           }
         ],
@@ -7385,7 +8016,7 @@
                         },
                         "address": {
                           "type": "string",
-                          "description": "The Zelcash address validated"
+                          "description": "The Flux address validated"
                         },
                         "scriptPubKey": {
                           "type": "string",
@@ -7456,7 +8087,7 @@
                 "properties": {
                   "zelcashaddress": {
                     "type": "string",
-                    "description": "The Zelcash address to use for the signature"
+                    "description": "The Flux address to use for the signature"
                   },
                   "signature": {
                     "type": "string",
@@ -7517,7 +8148,7 @@
             "schema": {
               "type": "string"
             },
-            "description": "The Zelcash address to use for the signature",
+            "description": "The Flux address to use for the signature",
             "example": "t1N6mLX2A64QsyuLbYkfPZSrkLF86hxuuFe"
           },
           {
@@ -7617,7 +8248,7 @@
                       "properties": {
                         "amount": {
                           "type": "number",
-                          "description": "The transaction amount in ZEL"
+                          "description": "The transaction amount in FLUX"
                         },
                         "confirmations": {
                           "type": "number",
@@ -7676,7 +8307,7 @@
                               },
                               "amount": {
                                 "type": "number",
-                                "description": "The amount in ZEL"
+                                "description": "The amount in FLUX"
                               },
                               "vout": {
                                 "type": "integer",
@@ -7859,7 +8490,7 @@
           "Daemon"
         ],
         "summary": "Bench status",
-        "description": "This will return the status of the node, what zelbenchd determined the tier the server could pass for, and if Flux backend is connected. If any one of these return a negative result the ZelNode will fail to confirm. **Public**",
+        "description": "This will return the status of the node, what fluxbenchd determined the tier the server could pass for, and if Flux backend is connected. If any one of these return a negative result the FluxNode will fail to confirm. **Public**",
         "operationId": "getBenchStatus",
         "responses": {
           "200": {
@@ -7969,7 +8600,7 @@
           "Daemon"
         ],
         "summary": "Reindex ZelCash daemon",
-        "description": "Tries to reindex ZelCash daemon running on the ZelNode the call is run against. ZelCash daemon is firstly stopped and then started with reindex flag. **Admin**",
+        "description": "Tries to reindex Flux daemon running on the FluxNode the call is run against. Flux daemon is firstly stopped and then started with reindex flag. **Admin**",
         "operationId": "reindexZelCash",
         "security": [
           {
@@ -8010,7 +8641,7 @@
           "Daemon"
         ],
         "summary": "Stop ZelCash daemon",
-        "description": "This will stop the ZelCash daemon from running. **Admin**",
+        "description": "This will stop the Flux daemon from running. **Admin**",
         "operationId": "stop",
         "security": [
           {
@@ -8049,8 +8680,8 @@
         "tags": [
           "Daemon"
         ],
-        "summary": "Create zelnode private key",
-        "description": "Create a new zelnode private key. **Admin**",
+        "summary": "Create fluxnode private key",
+        "description": "Create a new fluxnode private key. **Admin**",
         "operationId": "createZelNodeKey",
         "security": [
           {
@@ -8070,7 +8701,7 @@
                     },
                     "data": {
                       "type": "string",
-                      "description": "Zelnode private key"
+                      "description": "Fluxnode private key"
                     }
                   }
                 },
@@ -8089,7 +8720,7 @@
         "tags": [
           "Daemon"
         ],
-        "summary": "The zelnode conf file",
+        "summary": "The fluxnode conf file",
         "description": "View zelnode conf file in JSON format, this will return empty for most unless running a hot wallet. **Admin**",
         "operationId": "listZelNodeConf",
         "security": [
@@ -8119,7 +8750,7 @@
                           },
                           "status": {
                             "type": "string",
-                            "description": "Status of zelnode"
+                            "description": "Status of fluxnode"
                           },
                           "collateral": {
                             "type": "string",
@@ -8135,15 +8766,15 @@
                           },
                           "privateKey": {
                             "type": "string",
-                            "description": "Zelnode private key"
+                            "description": "Fluxnode private key"
                           },
                           "address": {
                             "type": "string",
-                            "description": "Ip address of zelnode server and port"
+                            "description": "Ip address of fluxnode server and port"
                           },
                           "ip": {
                             "type": "string",
-                            "description": "Ip address of zelnode server"
+                            "description": "Ip address of fluxnode server"
                           },
                           "network": {
                             "type": "string",
@@ -8221,7 +8852,7 @@
         "tags": [
           "Daemon"
         ],
-        "summary": "Zelnode transaction outputs",
+        "summary": "Fluxnode transaction outputs",
         "description": "Print all zelnode transaction outputs. **Admin**",
         "operationId": "getZelNodeOutputs",
         "security": [
@@ -8278,8 +8909,8 @@
         "tags": [
           "Daemon"
         ],
-        "summary": "Start ZelNode commmand",
-        "description": "Attempts to start one or more ZelNode. This call will only work if running a hot ZelNode which is highly not recommended. It is a control wallet function so basically your wallet containing the collateral funds. **Admin**",
+        "summary": "Start FluxNode commmand",
+        "description": "Attempts to start one or more FluxNode. This call will only work if running a hot FluxNode which is highly not recommended. It is a control wallet function so basically your wallet containing the collateral funds. **Admin**",
         "operationId": "startZelNode",
         "security": [
           {
@@ -8294,7 +8925,7 @@
             "schema": {
               "type": "string"
             },
-            "description": "Specify which set of ZelNode(s) to start.",
+            "description": "Specify which set of FluxNode(s) to start.",
             "example": "alias"
           },
           {
@@ -8317,7 +8948,7 @@
             "schema": {
               "type": "string"
             },
-            "description": "Zelnode alias. Required if using 'alias' as the set.",
+            "description": "FluxNode alias. Required if using 'alias' as the set.",
             "example": "Super1"
           }
         ],
@@ -8361,7 +8992,7 @@
           "Daemon"
         ],
         "summary": "Start zelnode command",
-        "description": "Attempts to start one zelnode. Same as the `/daemon/startzelnode` call this call will only work if running a hot ZelNode which is highly not recommended. It is a control wallet function so basically your wallet containing the collateral funds.  **Admin**",
+        "description": "Attempts to start one fluxnode. Same as the `/daemon/startzelnode` call this call will only work if running a hot FluxNode which is highly not recommended. It is a control wallet function so basically your wallet containing the collateral funds.  **Admin**",
         "operationId": "startDeterministicZelNode",
         "security": [
           {
@@ -9100,7 +9731,7 @@
           "Daemon"
         ],
         "summary": "Add multisig address to the wallet",
-        "description": "Add a nrequired-to-sign multisignature address to the wallet. Each key is a Zelcash address or hex-encoded public key. **Admin**",
+        "description": "Add a nrequired-to-sign multisignature address to the wallet. Each key is a Flux address or hex-encoded public key. **Admin**",
         "operationId": "addMultiSigAddressPost",
         "security": [
           {
@@ -9119,11 +9750,11 @@
                     "description": "The number of required signatures out of the n keys or addresses"
                   },
                   "keysobject": {
-                    "description": "A json array of Zelcash addresses or hex-encoded public keys.",
+                    "description": "A json array of Flux addresses or hex-encoded public keys.",
                     "type": "array",
                     "items": {
                       "type": "string",
-                      "description": "Zelcash address or hex-encoded public key"
+                      "description": "Flux address or hex-encoded public key"
                     }
                   }
                 }
@@ -9169,7 +9800,7 @@
           "Daemon"
         ],
         "summary": "Add multisig address to the wallet",
-        "description": "Add a nrequired-to-sign multisignature address to the wallet. Each key is a Zelcash address or hex-encoded public key. **Admin**",
+        "description": "Add a nrequired-to-sign multisignature address to the wallet. Each key is a Flux address or hex-encoded public key. **Admin**",
         "operationId": "addmultisigaddress",
         "security": [
           {
@@ -9191,7 +9822,7 @@
             "in": "query",
             "name": "keysobject",
             "required": true,
-            "description": "A json array of Zelcash addresses or hex-encoded public keys.\n\nExample:\n- `keysobject`=`[<\"address\">, <\"address\">]`\n",
+            "description": "A json array of Flux addresses or hex-encoded public keys.\n\nExample:\n- `keysobject`=`[<\"address\">, <\"address\">]`\n",
             "schema": {
               "type": "array",
               "items": {
@@ -9444,7 +10075,7 @@
           "Daemon"
         ],
         "summary": "Get new change address",
-        "description": "Returns a new Zelcash address, for receiving change. This is for use with raw transactions, NOT normal use. **Admin**",
+        "description": "Returns a new Flux address, for receiving change. This is for use with raw transactions, NOT normal use. **Admin**",
         "operationId": "getRawChangeAddress",
         "security": [
           {
@@ -9484,7 +10115,7 @@
           "Daemon"
         ],
         "summary": "Total received by the address",
-        "description": "Returns the total amount received by the given Zelcash address in transactions with at least minconf confirmations. **Admin**",
+        "description": "Returns the total amount received by the given Flux address in transactions with at least minconf confirmations. **Admin**",
         "operationId": "getReceivedByAddress",
         "security": [
           {
@@ -9499,7 +10130,7 @@
             "schema": {
               "type": "string"
             },
-            "description": "The Zelcash address for transactions",
+            "description": "The Flux address for transactions",
             "example": "t1dC6WNjqcJX8VFcdRp1MyJ7eB4MSQs83FR"
           },
           {
@@ -9613,7 +10244,7 @@
                         },
                         "balance": {
                           "type": "number",
-                          "description": "The total confirmed balance of the wallet in ZEL"
+                          "description": "The total confirmed balance of the wallet in FLUX"
                         },
                         "unconfirmed_balance": {
                           "type": "number",
@@ -9621,7 +10252,7 @@
                         },
                         "immature_balance": {
                           "type": "number",
-                          "description": "The total unconfirmed balance of the wallet in ZEL"
+                          "description": "The total unconfirmed balance of the wallet in FLUX"
                         },
                         "txcount": {
                           "type": "integer",
@@ -9637,7 +10268,7 @@
                         },
                         "paytxfee": {
                           "type": "number",
-                          "description": "The transaction fee configuration, set in ZEL/kB"
+                          "description": "The transaction fee configuration, set in FLUX/kB"
                         },
                         "seedfp": {
                           "type": "string",
@@ -9688,7 +10319,7 @@
             "schema": {
               "type": "string"
             },
-            "description": "The Zelcash address",
+            "description": "The Flux address",
             "example": "t1dC6WNjqcJX8VFcdRp1MyJ7eB4MSQs83FR"
           },
           {
@@ -10115,7 +10746,7 @@
                           },
                           "amount": {
                             "type": "number",
-                            "description": "The total amount in ZEL received by the address"
+                            "description": "The total amount in FLUX received by the address"
                           },
                           "confirmations": {
                             "type": "integer",
@@ -10716,7 +11347,7 @@
             "in": "query",
             "name": "amounts",
             "required": true,
-            "description": "A json object with addresses and amounts. The zelcash address is the key, the numeric amount in ZEL is the value.",
+            "description": "A json object with addresses and amounts. The zelcash address is the key, the numeric amount in FLUX is the value.",
             "schema": {
               "type": "object",
               "properties": {
@@ -10795,7 +11426,7 @@
         "tags": [
           "Daemon"
         ],
-        "summary": "Send Zel to an address",
+        "summary": "Send Flux to an address",
         "description": "Send an amount to a given address. **Admin**",
         "operationId": "sendToAddressPost",
         "security": [
@@ -10812,11 +11443,11 @@
                 "properties": {
                   "zelcashaddress": {
                     "type": "string",
-                    "description": "The zelcash address to send to"
+                    "description": "The flux address to send to"
                   },
                   "amount": {
                     "type": "number",
-                    "description": "The amount in ZEL to send"
+                    "description": "The amount in FLUX to send"
                   },
                   "comment": {
                     "type": "string",
@@ -10873,7 +11504,7 @@
         "tags": [
           "Daemon"
         ],
-        "summary": "Send Zel to an address",
+        "summary": "Send Flux to an address",
         "description": "Send an amount to a given address. **Admin**",
         "operationId": "sendToAddress",
         "security": [
@@ -10888,7 +11519,7 @@
             "required": true,
             "schema": {
               "type": "string",
-              "description": "The zelcash address to send to"
+              "description": "The flux address to send to"
             },
             "example": "t1QSE45jkZ9docBDFh4yEV91fgZgESp5hZN"
           },
@@ -10899,7 +11530,7 @@
             "schema": {
               "type": "number"
             },
-            "description": "The amount in ZEL to send",
+            "description": "The amount in FLUX to send",
             "example": 0.001
           },
           {
@@ -10931,7 +11562,7 @@
                 false
               ]
             },
-            "description": "The fee will be deducted from the amount being sent if set to true and the recipient will receive less Zelcash than you enter in the amount field."
+            "description": "The fee will be deducted from the amount being sent if set to true and the recipient will receive less Flux than you enter in the amount field."
           }
         ],
         "responses": {
@@ -10982,7 +11613,7 @@
             "schema": {
               "type": "number"
             },
-            "description": "The transaction fee in ZEL/kB rounded to the nearest 0.00000001",
+            "description": "The transaction fee in FLUX/kB rounded to the nearest 0.00000001",
             "example": 0.00001
           }
         ],
@@ -11262,7 +11893,7 @@
             "schema": {
               "type": "string"
             },
-            "description": "Zel address",
+            "description": "Flux address",
             "example": "zcQNG88SQVQTuqGKdeDDhVRCXkHeR3Vv5BqeBBaYziyN48FpJM2buK1YmQtpKoVkwrM2vvhCdrVofkdLc8QYeSLyiAkQB1u"
           },
           {
@@ -11336,15 +11967,15 @@
                         },
                         "unmigrated_amount": {
                           "type": "number",
-                          "description": "The total amount of unmigrated ZEL"
+                          "description": "The total amount of unmigrated FLUX"
                         },
                         "unfinalized_migrated_amount": {
                           "type": "number",
-                          "description": "The total amount of unfinalized ZEL"
+                          "description": "The total amount of unfinalized FLUX"
                         },
                         "finalized_migrated_amount": {
                           "type": "number",
-                          "description": "The total amount of finalized ZEL"
+                          "description": "The total amount of finalized FLUX"
                         },
                         "finalized_migration_transactions": {
                           "type": "integer",
@@ -12275,7 +12906,7 @@
                         },
                         "amount": {
                           "type": "number",
-                          "description": "The numeric amount in ZEL is the value"
+                          "description": "The numeric amount in FLUX is the value"
                         },
                         "memo": {
                           "type": "string",
@@ -12363,7 +12994,7 @@
           {
             "in": "query",
             "name": "amounts",
-            "description": "An array of json objects representing the amounts to send.\n\nKey/value pairs in order:\n- `address`: `<receiving address>`\n- `amount`: `<zel amount>`\n\nUrl encoded example:\n- `amounts`=`%5B%7B%22address%22%3A%22za1kqwgkln5azfnnzfps0vc44ucwynstxk9k79z6nunwq0pnh4rjuww5kgy02c9wvfmdkxkxndlvdd%22%2C%22amount%22%3A0.001%7D%5D`\n",
+            "description": "An array of json objects representing the amounts to send.\n\nKey/value pairs in order:\n- `address`: `<receiving address>`\n- `amount`: `<flux amount>`\n\nUrl encoded example:\n- `amounts`=`%5B%7B%22address%22%3A%22za1kqwgkln5azfnnzfps0vc44ucwynstxk9k79z6nunwq0pnh4rjuww5kgy02c9wvfmdkxkxndlvdd%22%2C%22amount%22%3A0.001%7D%5D`\n",
             "required": true,
             "schema": {
               "type": "array",
@@ -12376,7 +13007,7 @@
                   },
                   "amount": {
                     "type": "number",
-                    "description": "The numeric amount in ZEL is the value"
+                    "description": "The numeric amount in FLUX is the value"
                   },
                   "memo": {
                     "type": "string",
@@ -12441,7 +13072,7 @@
           "Daemon"
         ],
         "summary": "Migrate funds to a sapling adress",
-        "description": "When enabled the Sprout to Sapling migration will attempt to migrate all funds from this wallet’s sprout addresses to either the address for sapling account 0 or the address specified by the parameter '-migrationdestaddress'. This migration is designed to minimize information leakage. As a result for wallets with a significant sprout balance, this process may take several weeks. The migration works by sending, up to 5, as many transactions as possible whenever the blockchain reaches a height equal to 499 modulo 500. The transaction amounts are picked according to the random distribution specified in ZIP 308. The migration will end once the wallet’s sprout balance is below 0.01 ZEL. **Admin**",
+        "description": "When enabled the Sprout to Sapling migration will attempt to migrate all funds from this wallet’s sprout addresses to either the address for sapling account 0 or the address specified by the parameter '-migrationdestaddress'. This migration is designed to minimize information leakage. As a result for wallets with a significant sprout balance, this process may take several weeks. The migration works by sending, up to 5, as many transactions as possible whenever the blockchain reaches a height equal to 499 modulo 500. The transaction amounts are picked according to the random distribution specified in ZIP 308. The migration will end once the wallet’s sprout balance is below 0.01 FLUX. **Admin**",
         "operationId": "zSetMigration",
         "security": [
           {
@@ -12602,7 +13233,7 @@
           "Daemon"
         ],
         "summary": "Start ZelCash daemon",
-        "description": "Tries to start ZelCash daemon running on the ZelNode the call is run against without any extra parameters. **AdminAndFluxTeam**",
+        "description": "Tries to start Flux daemon running on the FluxNode the call is run against without any extra parameters. **AdminAndFluxTeam**",
         "operationId": "startdaemonB",
         "security": [
           {
@@ -12643,7 +13274,7 @@
           "Daemon"
         ],
         "summary": "Restart ZelCash daemon",
-        "description": "Tries to restart ZelCash daemon running on the ZelNode the call is run against. ZelCash daemon is firstly stopped and then started without any extra parameters. **AdminAndFluxTeam**",
+        "description": "Tries to restart Flux daemon running on the FluxNode the call is run against. Flux daemon is firstly stopped and then started without any extra parameters. **AdminAndFluxTeam**",
         "operationId": "restartdaemonB",
         "security": [
           {
@@ -12900,8 +13531,8 @@
         "tags": [
           "Benchmark"
         ],
-        "summary": "Zelbench status",
-        "description": "This will return the status of the node, what ZelBenchd determined the tier the server could pass for, and if Flux backend is connected. If any one of these return a negative result the ZelNode will fail to confirm. **Public**",
+        "summary": "Fluxbench status",
+        "description": "This will return the status of the node, what FluxBenchd determined the tier the server could pass for, and if Flux backend is connected. If any one of these return a negative result the ZelNode will fail to confirm. **Public**",
         "operationId": "getStatus",
         "responses": {
           "200": {
@@ -12938,8 +13569,8 @@
         "tags": [
           "Benchmark"
         ],
-        "summary": "Zelbench calls",
-        "description": "This will return with a list of calls for ZelBench. **Public**",
+        "summary": "Fluxbench calls",
+        "description": "This will return with a list of calls for FluxBench. **Public**",
         "operationId": "zelBenchHelp",
         "responses": {
           "200": {
@@ -13017,8 +13648,8 @@
         "tags": [
           "Benchmark"
         ],
-        "summary": "Zelbench status",
-        "description": "This will return with the zelbench status of the zelnode. **Public**",
+        "summary": "Fluxbench status",
+        "description": "This will return with the fluxbench status of the fluxnode. **Public**",
         "operationId": "zelBenchGetInfo",
         "responses": {
           "200": {
@@ -13054,8 +13685,8 @@
         "tags": [
           "Benchmark"
         ],
-        "summary": "Restart ZelBench daemon",
-        "description": "This will restart the ZelBench daemon and start bench process. **AdminAndFluxTeam**",
+        "summary": "Restart FluxBench daemon",
+        "description": "This will restart the FluxBench daemon and start bench process. **AdminAndFluxTeam**",
         "operationId": "restartNodeBenchmarks",
         "security": [
           {
@@ -13094,8 +13725,8 @@
         "tags": [
           "Benchmark"
         ],
-        "summary": "Stop zelbench daemon",
-        "description": "This will stop the zelbench daemon. **Admin**",
+        "summary": "Stop fluxbench daemon",
+        "description": "This will stop the fluxbench daemon. **Admin**",
         "operationId": "stopbenchmarkaemon",
         "security": [
           {
@@ -13134,8 +13765,8 @@
         "tags": [
           "Benchmark"
         ],
-        "summary": "Sign ZelNode transaction",
-        "description": "Command to get ZelBenchd to sign a ZelNode broadcast. **Admin**",
+        "summary": "Sign FluxNode transaction",
+        "description": "Command to get FluxBenchd to sign a FluxNode broadcast. **Admin**",
         "operationId": "signZelNodeTransactionPost",
         "security": [
           {
@@ -13151,7 +13782,7 @@
                 "properties": {
                   "hexstring": {
                     "type": "string",
-                    "description": "The hex encoded ZelNode broadcast message"
+                    "description": "The hex encoded FluxNode broadcast message"
                   }
                 }
               },
@@ -13194,8 +13825,8 @@
         "tags": [
           "Benchmark"
         ],
-        "summary": "Sign ZelNode transaction",
-        "description": "Command to get ZelBenchd to sign a ZelNode broadcast. **Admin**",
+        "summary": "Sign FluxNode transaction",
+        "description": "Command to get FluxBenchd to sign a FluxNode broadcast. **Admin**",
         "operationId": "signZelNodeTransaction",
         "security": [
           {
@@ -13244,14 +13875,14 @@
         }
       }
     },
-    "/zelapps/listrunningzelapps": {
+    "/apps/listrunningapps": {
       "get": {
         "tags": [
           "Apps"
         ],
         "summary": "list running apps",
         "description": "List and info of running apps. **Public**",
-        "operationId": "listRunningZelApps",
+        "operationId": "listRunningApps",
         "responses": {
           "200": {
             "description": "OK",
@@ -13341,14 +13972,14 @@
         }
       }
     },
-    "/zelapps/listallzelapps": {
+    "/apps/listallapps": {
       "get": {
         "tags": [
           "Apps"
         ],
         "summary": "list all apps",
         "description": "List and info of all apps. **Public**",
-        "operationId": "listAllZelApps",
+        "operationId": "listAllApps",
         "responses": {
           "200": {
             "description": "OK",
@@ -13438,14 +14069,14 @@
         }
       }
     },
-    "/zelapps/listzelappsimages": {
+    "/apps/listappsimages": {
       "get": {
         "tags": [
           "Apps"
         ],
         "summary": "List of images",
-        "description": "List of zelapps images installed. **Public**",
-        "operationId": "listZelAppsImages",
+        "description": "List of apps images installed. **Public**",
+        "operationId": "listAppsImages",
         "responses": {
           "200": {
             "description": "OK",
@@ -13565,14 +14196,14 @@
         }
       }
     },
-    "/zelapps/installedzelapps": {
+    "/apps/installedapps": {
       "get": {
         "tags": [
           "Apps"
         ],
         "summary": "installed apps",
         "description": "Info of installed apps. **Public**",
-        "operationId": "installedZelApps",
+        "operationId": "installedApps",
         "responses": {
           "200": {
             "description": "OK",
@@ -13678,14 +14309,14 @@
         }
       }
     },
-    "/zelapps/availablezelapps": {
+    "/apps/availableapps": {
       "get": {
         "tags": [
           "Apps"
         ],
         "summary": "available apps",
         "description": "Info of available apps. **Public**",
-        "operationId": "availableZelApps",
+        "operationId": "availableApps",
         "responses": {
           "200": {
             "description": "OK",
@@ -13861,14 +14492,14 @@
         }
       }
     },
-    "/zelapps/zelshare/getfile": {
+    "/apps/fluxshare/getfile": {
       "get": {
         "tags": [
           "Apps"
         ],
         "summary": "Share files",
         "description": "Call to retrieve share file. **Public**",
-        "operationId": "zelShareFile",
+        "operationId": "fluxShareFile",
         "parameters": [
           {
             "in": "query",
@@ -13897,14 +14528,14 @@
         }
       }
     },
-    "/zelapps/zelfluxusage": {
+    "/apps/fluxusage": {
       "get": {
         "tags": [
           "Apps"
         ],
-        "summary": "Zelflux's usage",
-        "description": "Will return amount of cpu resource zelflux is using. **Public**",
-        "operationId": "zelFluxUsage",
+        "summary": "Flux's usage",
+        "description": "Will return amount of cpu resource flux is using. **Public**",
+        "operationId": "FluxUsage",
         "responses": {
           "200": {
             "description": "OK",
@@ -13932,14 +14563,14 @@
         }
       }
     },
-    "/zelapps/zelappsresources": {
+    "/apps/appsresources": {
       "get": {
         "tags": [
           "Apps"
         ],
-        "summary": "Zelflux's usage of resources",
-        "description": "Will return data of resource zelflux is using. **Public**",
-        "operationId": "zelappsResources",
+        "summary": "Flux's usage of resources",
+        "description": "Will return data of resource flux is using. **Public**",
+        "operationId": "appsResources",
         "responses": {
           "200": {
             "description": "OK",
@@ -13952,7 +14583,7 @@
                       "$ref": "#/components/schemas/status"
                     },
                     "data": {
-                      "$ref": "#/components/schemas/zelappsresources"
+                      "$ref": "#/components/schemas/appsresources"
                     }
                   }
                 },
@@ -13970,13 +14601,13 @@
         }
       }
     },
-    "/zelapps/registrationinformation": {
+    "/apps/registrationinformation": {
       "get": {
         "tags": [
           "Apps"
         ],
         "summary": "Registration Info",
-        "description": "Zelapps registration info. **Public**",
+        "description": "Apps registration info. **Public**",
         "operationId": "registrationInformation",
         "responses": {
           "200": {
@@ -13998,15 +14629,15 @@
                           "properties": {
                             "cpu": {
                               "type": "integer",
-                              "description": "Zel amount per 0.1 cpu core"
+                              "description": "FLUX amount per 0.1 cpu core"
                             },
                             "ram": {
                               "type": "integer",
-                              "description": "Zel amount per 100 mb"
+                              "description": "FLUX amount per 100 mb"
                             },
                             "hdd": {
                               "type": "number",
-                              "description": "Zel amount per 1 gb"
+                              "description": "FLUX amount per 1 gb"
                             }
                           }
                         },
@@ -14016,7 +14647,7 @@
                         },
                         "epochstart": {
                           "type": "integer",
-                          "description": "Zelapps epoch blockheight start"
+                          "description": "Fluxapps epoch blockheight start"
                         },
                         "portMin": {
                           "type": "integer",
@@ -14094,14 +14725,14 @@
         }
       }
     },
-    "/zelapps/temporarymessages": {
+    "/apps/temporarymessages": {
       "get": {
         "tags": [
           "Apps"
         ],
         "summary": "Temporary registration info",
         "description": "Temporary registration info that will expire after 1 hour. **Public**",
-        "operationId": "getZelAppsTemporaryMessages",
+        "operationId": "getAppsTemporaryMessages",
         "responses": {
           "200": {
             "description": "OK",
@@ -14119,7 +14750,7 @@
                         "type": "object",
                         "properties": {
                           "zelAppSpecifications": {
-                            "$ref": "#/components/schemas/zelappspecification"
+                            "$ref": "#/components/schemas/appspecification"
                           },
                           "type": {
                             "type": "string",
@@ -14157,7 +14788,7 @@
                 "example": {
                   "status": "success",
                   "data": {
-                    "zelAppSpecifications": {
+                    "AppSpecifications": {
                       "version": 1,
                       "name": "Mario",
                       "description": "InfiniteMario",
@@ -14188,14 +14819,14 @@
         }
       }
     },
-    "/zelapps/permanentmessages": {
+    "/apps/permanentmessages": {
       "get": {
         "tags": [
           "Apps"
         ],
         "summary": "Permanent registration info",
         "description": "Registration info of apps that have been stored to the database. **Public**",
-        "operationId": "getZelAppsPermanentMessages",
+        "operationId": "getAppsPermanentMessages",
         "responses": {
           "200": {
             "description": "OK",
@@ -14237,7 +14868,7 @@
                           },
                           "valueSat": {
                             "type": "integer",
-                            "description": "Zel sat value of payment amount"
+                            "description": "Flux sat value of payment amount"
                           }
                         }
                       }
@@ -14248,7 +14879,7 @@
                   "status": "success",
                   "data": [
                     {
-                      "zelAppSpecifications": {
+                      "AppSpecifications": {
                         "version": 1,
                         "name": "TetrisTest",
                         "description": "Tetris is awesome",
@@ -14279,14 +14910,14 @@
         }
       }
     },
-    "/zelapps/globalappsspecifications": {
+    "/apps/globalappsspecifications": {
       "get": {
         "tags": [
           "Apps"
         ],
         "summary": "Global app specs",
         "description": "List of global app specifications. **Public**",
-        "operationId": "getGlobalZelAppsSpecifications",
+        "operationId": "getGlobalAppsSpecifications",
         "responses": {
           "200": {
             "description": "OK",
@@ -14335,7 +14966,7 @@
         }
       }
     },
-    "/zelapps/appspecifications": {
+    "/apps/appspecifications": {
       "get": {
         "tags": [
           "Apps"
@@ -14369,7 +15000,7 @@
                     "data": {
                       "type": "array",
                       "items": {
-                        "$ref": "#/components/schemas/zelappname"
+                        "$ref": "#/components/schemas/appname"
                       }
                     }
                   }
@@ -14403,7 +15034,7 @@
         }
       }
     },
-    "/zelapps/appowner": {
+    "/apps/appowner": {
       "get": {
         "tags": [
           "Apps"
@@ -14450,14 +15081,14 @@
         }
       }
     },
-    "/zelapps/hashes": {
+    "/apps/hashes": {
       "get": {
         "tags": [
           "Apps"
         ],
         "summary": "Application Hash info",
         "description": "Get list of app hashes and related info. **Public**",
-        "operationId": "getZelAppHashes",
+        "operationId": "getAppHashes",
         "responses": {
           "200": {
             "description": "OK",
@@ -14524,14 +15155,14 @@
         }
       }
     },
-    "/zelapps/location": {
+    "/apps/location": {
       "get": {
         "tags": [
           "Apps"
         ],
         "summary": "Info regarding app location",
         "description": "This will return data regarding the location of app specified. **Public**",
-        "operationId": "getZelAppsLocation",
+        "operationId": "getAppsLocation",
         "parameters": [
           {
             "in": "query",
@@ -14585,14 +15216,14 @@
         }
       }
     },
-    "/zelapps/locations": {
+    "/apps/locations": {
       "get": {
         "tags": [
           "Apps"
         ],
         "summary": "List of app locations",
         "description": "This will return a list of known apps on the network and it's locations data. **Public**",
-        "operationId": "getZelAppsLocations",
+        "operationId": "getAppsLocations",
         "responses": {
           "200": {
             "description": "OK",
@@ -14648,7 +15279,7 @@
         }
       }
     },
-    "/zelapps/calculateprice": {
+    "/apps/calculateprice": {
       "post": {
         "tags": [
           "Apps"
@@ -14708,7 +15339,7 @@
                     },
                     "data": {
                       "type": "string",
-                      "description": "Zel amount"
+                      "description": "FLUX amount"
                     }
                   }
                 },
@@ -14722,14 +15353,14 @@
         }
       }
     },
-    "/zelapps/zelappstart": {
+    "/apps/appstart": {
       "get": {
         "tags": [
           "Apps"
         ],
         "summary": "Starts app",
-        "description": "This will start the zelapp. **AppOwnerAbove**",
-        "operationId": "zelAppStart",
+        "description": "This will start the fluxapp. **AppOwnerAbove**",
+        "operationId": "AppStart",
         "security": [
           {
             "ZelID": []
@@ -14774,14 +15405,14 @@
         }
       }
     },
-    "/zelapps/zelappstop": {
+    "/apps/appstop": {
       "get": {
         "tags": [
           "Apps"
         ],
         "summary": "Stops app",
         "description": "This will stop the zelapp. **AppOwnerAbove**",
-        "operationId": "zelAppStop",
+        "operationId": "AppStop",
         "security": [
           {
             "ZelID": []
@@ -14826,14 +15457,14 @@
         }
       }
     },
-    "/zelapps/zelapprestart": {
+    "/apps/apprestart": {
       "get": {
         "tags": [
           "Apps"
         ],
         "summary": "Restarts app",
         "description": "This will restart the zelapp. **AppOwnerAbove**",
-        "operationId": "zelAppRestart",
+        "operationId": "AppRestart",
         "security": [
           {
             "ZelID": []
@@ -14878,7 +15509,7 @@
         }
       }
     },
-    "/zelapps/zelapppause": {
+    "/apps/apppause": {
       "get": {
         "tags": [
           "Apps"
@@ -14930,14 +15561,14 @@
         }
       }
     },
-    "/zelapps/zelappunpause": {
+    "/apps/appunpause": {
       "get": {
         "tags": [
           "Apps"
         ],
         "summary": "Unpause app",
         "description": "This will unpause the zelapp. **AppOwnerAbove**",
-        "operationId": "zelAppUnpause",
+        "operationId": "AppUnpause",
         "security": [
           {
             "ZelID": []
@@ -14982,14 +15613,14 @@
         }
       }
     },
-    "/zelapps/zelapptop": {
+    "/apps/apptop": {
       "get": {
         "tags": [
           "Apps"
         ],
         "summary": "List of running processes",
         "description": "Display the running processes of a container. **AppOwnerAbove**",
-        "operationId": "zelAppTop",
+        "operationId": "AppTop",
         "security": [
           {
             "ZelID": []
@@ -15091,14 +15722,14 @@
         }
       }
     },
-    "/zelapps/zelapplog": {
+    "/apps/applog": {
       "get": {
         "tags": [
           "Apps"
         ],
         "summary": "App's log",
-        "description": "This will fetch the logs of a zelapp. **AppOwnerAbove**",
-        "operationId": "zelAppLogs",
+        "description": "This will fetch the logs of a fluxapp. **AppOwnerAbove**",
+        "operationId": "AppLogs",
         "security": [
           {
             "ZelID": []
@@ -15161,14 +15792,14 @@
         }
       }
     },
-    "/zelapps/zelappinspect": {
+    "/apps/appinspect": {
       "get": {
         "tags": [
           "Apps"
         ],
         "summary": "Info of the app",
         "description": "Displays detailed info of the container. **AppOwnerAbove**",
-        "operationId": "zelAppInspect",
+        "operationId": "AppInspect",
         "security": [
           {
             "ZelID": []
@@ -16178,7 +16809,7 @@
         }
       }
     },
-    "/zelapps/zelappstats": {
+    "/apps/appstats": {
       "get": {
         "tags": [
           "Apps"
@@ -16188,7 +16819,7 @@
         "externalDocs": {
           "url": "https://docs.docker.com/engine/api/v1.40/#operation/ContainerStats"
         },
-        "operationId": "zelAppStats",
+        "operationId": "AppStats",
         "security": [
           {
             "ZelID": []
@@ -16329,14 +16960,14 @@
         }
       }
     },
-    "/zelapps/zelappchanges": {
+    "/apps/appchanges": {
       "get": {
         "tags": [
           "Apps"
         ],
         "summary": "Container changes",
         "description": "Data of changes made to container. If no changes it will return a null response which is usually the case. **AppOwnerAbove**\n\nKind values:\n- `0 = Modified`\n- `1 = Added`\n- `2 = Deleted`",
-        "operationId": "zelAppChanges",
+        "operationId": "AppChanges",
         "security": [
           {
             "ZelID": []
@@ -16400,14 +17031,14 @@
         }
       }
     },
-    "/zelapps/zelappexec": {
+    "/apps/appexec": {
       "post": {
         "tags": [
           "Apps"
         ],
         "summary": "Run a command in the container",
         "description": "Run new commands inside running containers. **AppOwner**",
-        "operationId": "zelAppExec",
+        "operationId": "AppExec",
         "security": [
           {
             "ZelID": []
@@ -16465,14 +17096,14 @@
         }
       }
     },
-    "/zelapps/zelappremove": {
+    "/apps/appremove": {
       "get": {
         "tags": [
           "Apps"
         ],
         "summary": "Clean and remove container",
         "description": "This will stop, clean data, close port, and remove the container. **AdminAndFluxTeam**",
-        "operationId": "removeZelAppLocally",
+        "operationId": "Appremove",
         "security": [
           {
             "ZelID": []
@@ -16481,7 +17112,7 @@
         "parameters": [
           {
             "in": "query",
-            "name": "zelapp",
+            "name": "app",
             "required": true,
             "schema": {
               "type": "string"
@@ -16509,7 +17140,7 @@
                 },
                 "example": {
                   "status": "success",
-                  "data": "ZelApp zelFoldingAtHome was successfuly removed"
+                  "data": "App zelFoldingAtHome was successfuly removed"
                 }
               }
             }
@@ -16517,7 +17148,7 @@
         }
       }
     },
-    "/zelapps/installtemporarylocalapp": {
+    "/apps/installtemporarylocalapp": {
       "get": {
         "tags": [
           "Apps"
@@ -16552,7 +17183,7 @@
                 },
                 "example": {
                   "status": "success",
-                  "data": "ZelApp zelFoldingAtHomeB successfully started."
+                  "data": "App zelFoldingAtHomeB successfully started."
                 }
               }
             }
@@ -16560,7 +17191,7 @@
         }
       }
     },
-    "/zelapps/createzelfluxnetwork": {
+    "/apps/createfluxnetwork": {
       "get": {
         "tags": [
           "Apps"
@@ -16600,13 +17231,13 @@
         }
       }
     },
-    "/zelapps/rescanglobalappsinformation": {
+    "/apps/rescanglobalappsinformation": {
       "get": {
         "tags": [
           "Apps"
         ],
         "summary": "Rescan and update global ZelApps info database",
-        "description": "Rescans global zelapps permanent messages since selected blockheight and updates global zelapps information database. **AdminAndFluxTeam**",
+        "description": "Rescans global apps permanent messages since selected blockheight and updates global apps information database. **AdminAndFluxTeam**",
         "operationId": "rescanGlobalAppsInformationAPI",
         "security": [
           {
@@ -16666,13 +17297,13 @@
         }
       }
     },
-    "/zelapps/reindexglobalappsinformation": {
+    "/apps/reindexglobalappsinformation": {
       "get": {
         "tags": [
           "Apps"
         ],
-        "summary": "Reindex zelappsinformation collection and rebuild",
-        "description": "This will drop zelappslocations collection, recreate indexes, and rebuild incoming messages. **AdminAndFluxTeam**",
+        "summary": "Reindex appsinformation collection and rebuild",
+        "description": "This will drop appslocations collection, recreate indexes, and rebuild incoming messages. **AdminAndFluxTeam**",
         "operationId": "reindexGlobalAppsInformationAPI",
         "security": [
           {
@@ -16707,13 +17338,13 @@
         }
       }
     },
-    "/zelapps/reindexglobalappslocation": {
+    "/apps/reindexglobalappslocation": {
       "get": {
         "tags": [
           "Apps"
         ],
-        "summary": "Reindex zelappslocations collection and rebuild",
-        "description": "Function that drops information about running zelapps and rebuilds indexes. **AdminAndFluxTeam**",
+        "summary": "Reindex appslocations collection and rebuild",
+        "description": "Function that drops information about running apps and rebuilds indexes. **AdminAndFluxTeam**",
         "operationId": "reindexGlobalAppsLocationAPI",
         "security": [
           {
@@ -16748,7 +17379,7 @@
         }
       }
     },
-    "/zelapps/checkdockerexistance": {
+    "/apps/checkdockerexistance": {
       "post": {
         "tags": [
           "Apps"
@@ -16808,14 +17439,14 @@
         }
       }
     },
-    "/zelapps/zelappregister": {
+    "/apps/appregister": {
       "post": {
         "tags": [
           "Apps"
         ],
         "summary": "App registration",
         "description": "This call is to provide required info to register app on Flux. **User**\n\nNote: Signature is following message signed in the format shown below\n- `this.updatetype + this.version + JSON.stringify(zelAppSpecFormatted) + this.timestamp`\n\nExample:\n- `zelappregister1{\"version\":1,\"name\":\"Mario\",\"description\":\"InfiniteMario\",\"repotag\":\"bharathshetty4/supermario:latest\",\"owner\":\"1FLUX1AHpR35EiPHH4HUMsWzugTaj1Gp6M\",\"port\":31000,\"enviromentParameters\":[],\"commands\":[],\"containerPort\":8600,\"containerData\":\"/tmp\",\"cpu\":0.1,\"ram\":100,\"hdd\":1,\"tiered\":false}1600255247532`",
-        "operationId": "registerZelAppGlobalyApi",
+        "operationId": "Appregister",
         "security": [
           {
             "ZelID": []
@@ -16829,7 +17460,7 @@
                 "type": "object",
                 "properties": {
                   "zelAppSpecification": {
-                    "$ref": "#/components/schemas/zelappspecification"
+                    "$ref": "#/components/schemas/appspecification"
                   },
                   "timestamp": {
                     "type": "integer",
@@ -16910,14 +17541,14 @@
         }
       }
     },
-    "/zelapps/zelappupdate": {
+    "/apps/appupdate": {
       "post": {
         "tags": [
           "Apps"
         ],
         "summary": "App update",
         "description": "This call is to provide required info to update app on Flux. **User**\n\nNote: Signature is following message signed in the format shown below\n- `this.updatetype + this.version + JSON.stringify(zelAppSpecFormatted) + this.timestamp`\n\nExample:\n- `zelappregister1{\"version\":1,\"name\":\"Mario\",\"description\":\"InfiniteMario\",\"repotag\":\"bharathshetty4/supermario:latest\",\"owner\":\"1FLUX1AHpR35EiPHH4HUMsWzugTaj1Gp6M\",\"port\":31000,\"enviromentParameters\":[],\"commands\":[],\"containerPort\":8600,\"containerData\":\"/tmp\",\"cpu\":0.1,\"ram\":100,\"hdd\":1,\"tiered\":false}1600255247532`",
-        "operationId": "updateZelAppGlobalyApi",
+        "operationId": "updateAppGlobalyApi",
         "security": [
           {
             "ZelID": []
@@ -16930,8 +17561,8 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "zelAppSpecification": {
-                    "$ref": "#/components/schemas/zelappspecification"
+                  "AppSpecification": {
+                    "$ref": "#/components/schemas/appspecification"
                   },
                   "timestamp": {
                     "type": "integer",
@@ -16952,7 +17583,7 @@
                 }
               },
               "example": {
-                "zelAppSpecification": {
+                "AppSpecification": {
                   "version": 1,
                   "name": "Mario",
                   "description": "InfiniteMario",
@@ -16979,7 +17610,7 @@
                 },
                 "timestamp": 1600255247532,
                 "signature": "Gz6XXaBOCutFDRS2Fn9oTdM6quAEU2ppulO+X0NKJRs0Zsv7nbs5LlyLfln+qBEB0/rnehDRm0iM8X/CDl80ToU=",
-                "type": "zelappupdate",
+                "type": "appupdate",
                 "version": 1
               }
             }
@@ -17012,13 +17643,13 @@
         }
       }
     },
-    "/explorer/zelnodetxs": {
+    "/explorer/fluxtxs": {
       "get": {
         "tags": [
           "Explorer"
         ],
-        "summary": "View ZelNode transactions",
-        "description": "View a filtered list of the ZelNode's transactions. **Public**",
+        "summary": "View FluxNode transactions",
+        "description": "View a filtered list of the FluxNode's transactions. **Public**",
         "operationId": "getFilteredZelNodeTxs",
         "parameters": [
           {
@@ -17064,11 +17695,11 @@
                         },
                         "ip": {
                           "type": "string",
-                          "description": "Ip of zelnode's server"
+                          "description": "Ip of fluxnode's server"
                         },
                         "benchTier": {
                           "type": "string",
-                          "description": "Zelnode tier"
+                          "description": "Fluxnode tier"
                         },
                         "collateralHash": {
                           "type": "string",
@@ -17080,7 +17711,7 @@
                         },
                         "zelAddress": {
                           "type": "string",
-                          "description": "Zel address"
+                          "description": "Flux address"
                         },
                         "lockedAmount": {
                           "type": "integer",
@@ -17166,11 +17797,11 @@
                           },
                           "address": {
                             "type": "string",
-                            "description": "Zel address"
+                            "description": "Flux address"
                           },
                           "satoshis": {
                             "type": "integer",
-                            "description": "Value of Zel in satoshi"
+                            "description": "Value of Flux in satoshi"
                           },
                           "scriptPubKey": {
                             "type": "string",
@@ -17230,7 +17861,7 @@
             "schema": {
               "type": "string"
             },
-            "description": "Zel address to look up tx history",
+            "description": "Flux address to look up tx history",
             "example": "t1edbnsYnGXxyYNt4kJJPhZktDWNaKwkznY"
           }
         ],
@@ -17331,7 +17962,7 @@
                     },
                     "data": {
                       "type": "integer",
-                      "description": "Zel balance in satoshi value"
+                      "description": "Flux balance in satoshi value"
                     }
                   }
                 },
@@ -17393,7 +18024,7 @@
           "Explorer"
         ],
         "summary": "Reindex collection",
-        "description": "Drop ZelCash collection and recreate it. **AdminAndFluxTeam**",
+        "description": "Drop Flux collection and recreate it. **AdminAndFluxTeam**",
         "operationId": "reindexExplorer",
         "security": [
           {
@@ -17433,7 +18064,7 @@
           "Explorer"
         ],
         "summary": "Restart block processing",
-        "description": "Restarts ZelCash collection. **AdminAndFluxTeam**",
+        "description": "Restarts Flux collection. **AdminAndFluxTeam**",
         "operationId": "restartBlockProcessing",
         "security": [
           {
@@ -17473,7 +18104,7 @@
           "Explorer"
         ],
         "summary": "Stops block processing",
-        "description": "Stops ZelCash collection. **AdminAndFluxTeam**",
+        "description": "Stops Flux collection. **AdminAndFluxTeam**",
         "operationId": "stopBlockProcessing",
         "security": [
           {
@@ -17744,7 +18375,7 @@
             "type": "array",
             "items": {
               "type": "string",
-              "description": "Zelcash address"
+              "description": "Flux address"
             }
           },
           "p2sh": {
@@ -17821,11 +18452,11 @@
           },
           "valueBalance": {
             "type": "number",
-            "description": "The balance value of ZEL"
+            "description": "The balance value of FLUX"
           },
           "valueBalanceZat": {
             "type": "number",
-            "description": "The balance value of ZEL"
+            "description": "The balance value of FLUX"
           },
           "vShieldedSpend": {
             "$ref": "#/components/schemas/shieldedspend"
@@ -18520,11 +19151,11 @@
           },
           "paytxfee": {
             "type": "number",
-            "description": "The transaction fee set at ZEL/kB"
+            "description": "The transaction fee set at FLUX/kB"
           },
           "relayfee": {
             "type": "number",
-            "description": "Minimum relay fee for non-free transactions in ZEL/kB"
+            "description": "Minimum relay fee for non-free transactions in FLUX/kB"
           },
           "errors": {
             "type": "string",
@@ -18537,7 +19168,7 @@
         "properties": {
           "status": {
             "type": "string",
-            "description": "ZelNode status"
+            "description": "FluxNode status"
           },
           "collateral": {
             "type": "string",
@@ -18553,7 +19184,7 @@
           },
           "ip": {
             "type": "string",
-            "description": "ZelNode network address"
+            "description": "FluxNode network address"
           },
           "network": {
             "type": "string",
@@ -18561,19 +19192,19 @@
           },
           "added_height": {
             "type": "integer",
-            "description": "Block height when ZelNode was added"
+            "description": "Block height when FluxNode was added"
           },
           "confirmed_height": {
             "type": "integer",
-            "description": "Block height when ZelNode was confirmed"
+            "description": "Block height when FluxNode was confirmed"
           },
           "last_confirmed_height": {
             "type": "integer",
-            "description": "Last block height when ZelNode was confirmed"
+            "description": "Last block height when FluxNode was confirmed"
           },
           "last_paid_height": {
             "type": "integer",
-            "description": "Last block height when ZelNode was paid"
+            "description": "Last block height when FluxNode was paid"
           },
           "tier": {
             "type": "string",
@@ -18581,19 +19212,19 @@
           },
           "payment_address": {
             "type": "string",
-            "description": "ZEL address for ZelNode payments"
+            "description": "FLUX address for ZelNode payments"
           },
           "pubkey": {
             "type": "string",
-            "description": "ZelNode public key used for message broadcasting"
+            "description": "FluxNode public key used for message broadcasting"
           },
           "activesince": {
             "type": "integer",
-            "description": "The time in seconds since epoch (Jan 1 1970 GMT) ZelNode has been active"
+            "description": "The time in seconds since epoch (Jan 1 1970 GMT) FluxNode has been active"
           },
           "lastpaid": {
             "type": "integer",
-            "description": "The time in seconds since epoch (Jan 1 1970 GMT) ZelNode was last paid"
+            "description": "The time in seconds since epoch (Jan 1 1970 GMT) FluxNode was last paid"
           }
         }
       },

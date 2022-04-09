@@ -2,7 +2,7 @@
   "_args": [
     [
       "swagger-ui-dist@3.24.3",
-      "C:\\Users\\User\\Source\\Repos\\fluxdocs"
+      "/Users/tadeaskmenta/repos/fluxdocs"
     ]
   ],
   "_from": "swagger-ui-dist@3.24.3",
@@ -26,7 +26,7 @@
   ],
   "_resolved": "https://registry.npmjs.org/swagger-ui-dist/-/swagger-ui-dist-3.24.3.tgz",
   "_spec": "3.24.3",
-  "_where": "C:\\Users\\User\\Source\\Repos\\fluxdocs",
+  "_where": "/Users/tadeaskmenta/repos/fluxdocs",
   "bugs": {
     "url": "https://github.com/swagger-api/swagger-ui/issues"
   },
