@@ -12136,19 +12136,19 @@ paths:
                     type: object
                     properties:
                       available: 
-                        type: integer
+                        type: number
                         description: Available space in fluxshare
                       used:
-                        type: integer
+                        type: number
                         description: Used space in fluxshare 
                       total:
-                        type: integer
+                        type: number
                         description: Total space in fluxshare
                example:
                 status: success
                 data: 
                   available: 1.999761
-		  used: 0.000239
+                  used: 0.000239
                   total: 2
   /apps/fluxshare/sharefile:
     get:
